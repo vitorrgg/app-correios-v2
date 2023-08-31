@@ -168,7 +168,7 @@ exports.post = async ({ appSdk }, req, res) => {
 
   let correiosResult
   try {
-    const { data } = await calculate({
+    correiosResult = await calculate({
       correiosParams: {
         cepOrigem,
         cepDestino,
@@ -182,7 +182,6 @@ exports.post = async ({ appSdk }, req, res) => {
       serviceCodes,
       storeId
     })
-    correiosResult = data
   } catch (err) {
     const { response } = err
     return res.status(409).send({
