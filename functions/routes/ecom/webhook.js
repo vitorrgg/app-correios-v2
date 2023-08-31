@@ -37,8 +37,8 @@ exports.post = ({ appSdk }, req, res) => {
       if (trigger.resource === 'applications' && appData.correios_contract) {
         const {
           username,
-          accessCode,
-          postCardNumber
+          access_code: accessCode,
+          post_card_number: postCardNumber
         } = appData.correios_contract
         if (username && accessCode && postCardNumber) {
           newCorreios(storeId, { username, accessCode, postCardNumber })
