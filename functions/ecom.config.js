@@ -176,12 +176,6 @@ const app = {
             "type": "string",
             "maxLength": 50,
             "title": "Número do cartão de postagem"
-          },
-          "cnpj": {
-            "type": "string",
-            "minLength": 14,
-            "maxLength": 18,
-            "title": "CNPJ associado ao contrato"
           }
         }
       },
