@@ -7,7 +7,7 @@
 
 const app = {
   app_id: 126334,
-  title: 'Correios',
+  title: 'Correios (novos contratos)',
   slug: 'correios2',
   type: 'external',
   state: 'active',
