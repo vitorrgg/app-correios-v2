@@ -1,11 +1,16 @@
 {
-  "app_id": 9000,
-  "title": "My Awesome E-Com Plus App",
-  "slug": "my-awesome-ecom-plus-app",
+  "app_id": 126334,
+  "title": "Correios (novos contratos)",
+  "slug": "correios2",
   "type": "external",
   "state": "active",
   "authentication": true,
-  "modules": {},
+  "modules": {
+    "calculate_shipping": {
+      "enabled": true,
+      "endpoint": "https://us-central1-ecom-correios2.cloudfunctions.net/app/ecom/modules/calculate-shipping"
+    }
+  },
   "auth_scope": {
     "stores/me": [
       "GET"
@@ -26,6 +31,221 @@
     "products/price": [],
     "products/variations/price": []
   },
-  "auth_callback_uri": "https://us-central1-ecom-app-boilerplate.cloudfunctions.net/app/ecom/auth-callback",
+  "admin_settings": {
+    "zip": {
+      "schema": {
+        "type": "string",
+        "maxLength": 9,
+        "pattern": "^[0-9]{5}-?[0-9]{3}$",
+        "title": "CEP de origem",
+        "description": "Código postal do remetente para cálculo do frete"
+      },
+      "hide": true
+    },
+    "correios_contract": {
+      "schema": {
+        "title": "Contrato",
+        "description": "Informações do contrato com os Correios",
+        "type": "object",
+        "required": [
+          "username",
+          "access_code",
+          "post_card_number",
+          "cnpj"
+        ],
+        "properties": {
+          "username": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Usuário do https://cws.correios.com.br/",
+            "description": "'idCorreios', geralmente são os dígitos do CNPJ"
+          },
+          "access_code": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Código de acesso às APIs",
+            "description": "Código gerado em https://cws.correios.com.br/acesso-componentes"
+          },
+          "post_card_number": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Número do cartão de postagem"
+          },
+          "cnpj": {
+            "type": "string",
+            "minLength": 14,
+            "maxLength": 18,
+            "title": "CNPJ associado ao contrato"
+          }
+        }
+      },
+      "hide": true
+    },
+    "services": {
+      "schema": {
+        "title": "Serviços de entrega via Correios",
+        "type": "array",
+        "maxItems": 6,
+        "items": {
+          "title": "Opção de serviço de entrega",
+          "type": "object",
+          "required": [
+            "service_code"
+          ],
+          "properties": {
+            "label": {
+              "type": "string",
+              "maxLength": 50,
+              "title": "Rótulo",
+              "description": "Nome do serviço exibido aos clientes"
+            },
+            "service_code": {
+              "type": "string",
+              "maxLength": 9,
+              "pattern": "^[0-9]+$",
+              "title": "Código do serviço"
+            }
+          }
+        }
+      },
+      "hide": true
+    },
+    "posting_deadline": {
+      "schema": {
+        "title": "Prazo de postagem",
+        "type": "object",
+        "required": [
+          "days"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "days": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 999999,
+            "title": "Número de dias",
+            "description": "Dias de prazo para postar os produtos após a compra"
+          },
+          "working_days": {
+            "type": "boolean",
+            "default": true,
+            "title": "Dias úteis"
+          },
+          "after_approval": {
+            "type": "boolean",
+            "default": true,
+            "title": "Após aprovação do pagamento"
+          }
+        }
+      },
+      "hide": false
+    },
+    "additional_price": {
+      "schema": {
+        "type": "number",
+        "minimum": -999999,
+        "maximum": 999999,
+        "title": "Custo adicional",
+        "description": "Valor a adicionar (negativo para descontar) no frete calculado via Correios"
+      },
+      "hide": false
+    },
+    "free_no_weight_shipping": {
+      "schema": {
+        "type": "boolean",
+        "default": false,
+        "title": "Frete grátis sem peso",
+        "description": "Aplica frete grátis se todos os produtos tiverem peso e dimensões zeradas"
+      },
+      "hide": false
+    },
+    "no_declare_value": {
+      "schema": {
+        "type": "boolean",
+        "default": false,
+        "title": "Desabilitar declaração de valor",
+        "description": "Ao selecionado, não será declarado valor do pedido"
+      },
+      "hide": false
+    },
+    "shipping_rules": {
+      "schema": {
+        "title": "Regras de envio",
+        "description": "Aplicar descontos/adicionais condicionados ou desabilitar regiões",
+        "type": "array",
+        "maxItems": 300,
+        "items": {
+          "title": "Regra de envio",
+          "type": "object",
+          "minProperties": 1,
+          "properties": {
+            "service_code": {
+              "type": "string",
+              "maxLength": 9,
+              "pattern": "^[0-9]+$",
+              "default": "04510",
+              "title": "Código do serviço"
+            },
+            "zip_range": {
+              "title": "Faixa de CEP",
+              "type": "object",
+              "required": [
+                "min",
+                "max"
+              ],
+              "properties": {
+                "min": {
+                  "type": "integer",
+                  "minimum": 10000,
+                  "maximum": 999999999,
+                  "title": "CEP inicial"
+                },
+                "max": {
+                  "type": "integer",
+                  "minimum": 10000,
+                  "maximum": 999999999,
+                  "title": "CEP final"
+                }
+              }
+            },
+            "min_amount": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 999999999,
+              "title": "Valor mínimo da compra"
+            },
+            "free_shipping": {
+              "type": "boolean",
+              "default": false,
+              "title": "Frete grátis"
+            },
+            "discount": {
+              "title": "Desconto",
+              "type": "object",
+              "required": [
+                "value"
+              ],
+              "properties": {
+                "percentage": {
+                  "type": "boolean",
+                  "default": false,
+                  "title": "Desconto percentual"
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": -99999999,
+                  "maximum": 99999999,
+                  "title": "Valor do desconto",
+                  "description": "Valor percentual/fixo do desconto ou acréscimo (negativo)"
+                }
+              }
+            }
+          }
+        }
+      },
+      "hide": false
+    }
+  },
+  "auth_callback_uri": "https://us-central1-ecom-correios2.cloudfunctions.net/app/ecom/auth-callback",
   "version": "1.0.0"
 }
