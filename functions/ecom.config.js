@@ -163,8 +163,8 @@ const app = {
           "username": {
             "type": "string",
             "maxLength": 50,
-            "title": "Usuário do https://cws.correios.com.br/",
-            "description": "'idCorreios', geralmente são os dígitos do CNPJ"
+            "title": "Usuário (idCorreios)",
+            "description": "Login do  https://cws.correios.com.br/ , geralmente são os dígitos do CNPJ"
           },
           "access_code": {
             "type": "string",
