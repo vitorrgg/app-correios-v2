@@ -1,5 +1,8 @@
+const logger = require('firebase-functions/logger')
 // read configured E-Com Plus app data
 const getAppData = require('./../../lib/store-api/get-app-data')
+const updateAppData = require('./../../lib/store-api/update-app-data')
+const { newCorreios } = require('../../lib/correios-axios')
 
 const SKIP_TRIGGER_NAME = 'SkipTrigger'
 const ECHO_SUCCESS = 'SUCCESS'
@@ -31,6 +34,49 @@ exports.post = ({ appSdk }, req, res) => {
       }
 
       /* DO YOUR CUSTOM STUFF HERE */
+      if (trigger.resource === 'applications' && appData.correios_contract) {
+        const {
+          username,
+          accessCode,
+          postCardNumber
+        } = appData.correios_contract
+        if (username && accessCode && postCardNumber) {
+          newCorreios(storeId, { username, accessCode, postCardNumber })
+            .then(async (correios) => {
+              if (!appData.services || !appData.services.length) {
+                const { cnpj, nuContrato } = correios.$contract
+                const { data: { itens } } = await correios({
+                  method: 'get',
+                  url: `/meucontrato/v1/empresas/${cnpj}/contratos/${nuContrato}/servicos?page=0&size=50`
+                })
+                const services = itens
+                  .filter(({ descricao }) => /^(PAC|SEDEX) CONTRATO AG$/.test(descricao))
+                  .map(({ codigo, descricao }) => ({
+                    service_code: codigo,
+                    label: descricao.replace(' CONTRATO AG', '')
+                  }))
+                if (services.length) {
+                  await updateAppData({ appSdk, storeId }, { services }, true)
+                }
+              }
+              logger.info(`[webhook] #${storeId} correios contract`, {
+                contract: correios.$contract
+              })
+            })
+            .catch((err) => {
+              if (err.response) {
+                logger.warn(`[webhook] cant generate correios token for #${storeId}`, {
+                  headers: err.config.headers,
+                  body: err.config.data,
+                  response: err.response.data,
+                  status: err.response.status
+                })
+              } else {
+                logger.error(err)
+              }
+            })
+        }
+      }
 
       // all done
       res.send(ECHO_SUCCESS)
