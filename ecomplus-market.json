@@ -1,7 +1,8 @@
 {
   "app": {
-    "title": "",
-    "short_description": "",
-    "category": "tools"
+    "title": "Correios (novos contratos)",
+    "short_description": "Cálculo de frete e prazo de envio via Correios API",
+    "category": "shipping",
+    "icon": "https://market.e-com.plus/media/cLaNAHRjQpDn.png"
   }
 }
