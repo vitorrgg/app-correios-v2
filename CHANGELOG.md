@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.0.0 (2023-08-31)
+
+
+### Features
+
+* handling app data webhook and saving correios token and contract data ([fc65f02](https://github.com/ecomplus/application-starter/commit/fc65f020bc81300c457c5e473fc8b48bb3f08878))
+* setup app config ([63a122b](https://github.com/ecomplus/application-starter/commit/63a122b2611e2f14bda0717cddbb2b960559a140))
+* setup calculate shipping from correios api ([0b45b01](https://github.com/ecomplus/application-starter/commit/0b45b013032f00ba1053d5317fb8d37755212dda))
+
+
+### Bug Fixes
+
+* update app settings and procedure for self hidden data edit ([15a4d3f](https://github.com/ecomplus/application-starter/commit/15a4d3f64b3ca0c7e5acee63cea5e29873af4457))
+
 ## [1.0.0-starter.26](https://github.com/ecomplus/application-starter/compare/v1.0.0-starter.25...v1.0.0-starter.26) (2022-02-24)
 
 ## [1.0.0-starter.25](https://github.com/ecomplus/application-starter/compare/v1.0.0-starter.24...v1.0.0-starter.25) (2022-02-24)
