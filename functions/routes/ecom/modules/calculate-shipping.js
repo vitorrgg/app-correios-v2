@@ -1,3 +1,4 @@
+const logger = require('firebase-functions/logger')
 const { calculate } = require('../../../lib/correios-calculate')
 
 exports.post = async ({ appSdk }, req, res) => {
@@ -168,7 +169,7 @@ exports.post = async ({ appSdk }, req, res) => {
 
   let correiosResult
   try {
-    correiosResult = await calculate({
+    const { data } = await calculate({
       correiosParams: {
         cepOrigem,
         cepDestino,
@@ -182,6 +183,7 @@ exports.post = async ({ appSdk }, req, res) => {
       serviceCodes,
       storeId
     })
+    correiosResult = data
   } catch (err) {
     const { response } = err
     return res.status(409).send({
@@ -190,6 +192,9 @@ exports.post = async ({ appSdk }, req, res) => {
     })
   }
 
+  logger.debug('[calculate] result', {
+    correiosResult
+  })
   correiosResult.forEach(({
     coProduto,
     // psCobrado
