@@ -151,24 +151,37 @@ const app = {
     "correios_contract": {
       "schema": {
         "title": "Contrato",
-        "description": "Informações do contrato com os Correios (se houver)",
+        "description": "Informações do contrato com os Correios",
         "type": "object",
         "required": [
-          "code",
-          "password"
+          "username",
+          "access_code",
+          "post_card_number",
+          "cnpj"
         ],
         "properties": {
-          "code": {
+          "username": {
             "type": "string",
             "maxLength": 50,
-            "title": "Código administrativo",
-            "description": "Código disponível no corpo do contrato"
+            "title": "Usuário do https://cws.correios.com.br/",
+            "description": "\'idCorreios\', geralmente são os dígitos do CNPJ"
           },
-          "password": {
+          "access_code": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Código de acesso às APIs",
+            "description": "Código gerado em https://cws.correios.com.br/acesso-componentes"
+          },
+          "post_card_number": {
             "type": "string",
             "maxLength": 50,
-            "title": "Senha de acesso",
-            "description": "A senha inicial corresponde aos 8 primeiros dígitos do CNPJ"
+            "title": "Número do cartão de postagem"
+          },
+          "cnpj": {
+            "type": "string",
+            "minLength": 14,
+            "maxLength": 18,
+            "title": "CNPJ associado ao contrato"
           }
         }
       },
@@ -348,58 +361,13 @@ const app = {
 
 const procedures = []
 
-/**
- * Uncomment and edit code above to configure `triggers` and receive respective `webhooks`:
-
 const { baseUri } = require('./__env')
 
 procedures.push({
   title: app.title,
-
   triggers: [
-    // Receive notifications when new order is created:
-    {
-      resource: 'orders',
-      action: 'create',
-    },
-
-    // Receive notifications when order financial/fulfillment status are set or changed:
-    // Obs.: you probably SHOULD NOT enable the orders triggers below and the one above (create) together.
-    {
-      resource: 'orders',
-      field: 'financial_status',
-    },
-    {
-      resource: 'orders',
-      field: 'fulfillment_status',
-    },
-
-    // Receive notifications when products/variations stock quantity changes:
-    {
-      resource: 'products',
-      field: 'quantity',
-    },
-    {
-      resource: 'products',
-      subresource: 'variations',
-      field: 'quantity'
-    },
-
-    // Receive notifications when cart is edited:
-    {
-      resource: 'carts',
-      action: 'change',
-    },
-
-    // Receive notifications when customer is deleted:
-    {
-      resource: 'customers',
-      action: 'delete',
-    },
-
-    // Feel free to create custom combinations with any Store API resource, subresource, action and field.
+    // app "self" hidden_data edits only
   ],
-
   webhooks: [
     {
       api: {
@@ -411,9 +379,6 @@ procedures.push({
     }
   ]
 })
-
- * You may also edit `routes/ecom/webhook.js` to treat notifications properly.
- */
 
 exports.app = app
 
