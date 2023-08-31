@@ -1,4 +1,4 @@
-/* eslint-disable comma-dangle, no-multi-spaces, key-spacing */
+/* eslint-disable comma-dangle, no-multi-spaces, key-spacing, quote-props, quotes */
 
 /**
  * Edit base E-Com Plus Application object here.
@@ -164,7 +164,7 @@ const app = {
             "type": "string",
             "maxLength": 50,
             "title": "Usuário do https://cws.correios.com.br/",
-            "description": "\'idCorreios\', geralmente são os dígitos do CNPJ"
+            "description": "'idCorreios', geralmente são os dígitos do CNPJ"
           },
           "access_code": {
             "type": "string",
