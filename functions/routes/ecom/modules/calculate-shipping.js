@@ -1,16 +1,6 @@
-exports.post = ({ appSdk }, req, res) => {
-  /**
-   * Treat `params` and (optionally) `application` from request body to properly mount the `response`.
-   * JSON Schema reference for Calculate Shipping module objects:
-   * `params`: https://apx-mods.e-com.plus/api/v1/calculate_shipping/schema.json?store_id=100
-   * `response`: https://apx-mods.e-com.plus/api/v1/calculate_shipping/response_schema.json?store_id=100
-   *
-   * Examples in published apps:
-   * https://github.com/ecomplus/app-mandabem/blob/master/functions/routes/ecom/modules/calculate-shipping.js
-   * https://github.com/ecomplus/app-datafrete/blob/master/functions/routes/ecom/modules/calculate-shipping.js
-   * https://github.com/ecomplus/app-jadlog/blob/master/functions/routes/ecom/modules/calculate-shipping.js
-   */
+const { calculate } = require('../../../lib/correios-calculate')
 
+exports.post = async ({ appSdk }, req, res) => {
   const { params, application } = req.body
   const { storeId } = req
   // setup basic required response object
@@ -30,40 +20,279 @@ exports.post = ({ appSdk }, req, res) => {
     return
   }
 
-  /* DO THE STUFF HERE TO FILL RESPONSE OBJECT WITH SHIPPING SERVICES */
-
-  /**
-   * Sample snippets:
-
-  if (params.items) {
-    let totalWeight = 0
-    params.items.forEach(item => {
-      // treat items to ship
-      totalWeight += item.quantity * item.weight.value
+  const cepDestino = params.to ? params.to.zip.replace(/\D/g, '') : ''
+  const cepOrigem = params.from
+    ? params.from.zip.replace(/\D/g, '')
+    : appData.zip ? appData.zip.replace(/\D/g, '') : ''
+  if (!cepOrigem) {
+    // must have configured origin zip code to continue
+    return res.status(409).send({
+      error: 'CALCULATE_ERR',
+      message: 'Zip code is unset on app hidden data (merchant must configure the app)'
+    })
+  }
+  if (!params.items) {
+    return res.status(400).send({
+      error: 'CALCULATE_EMPTY_CART',
+      message: 'Cannot calculate shipping without cart items'
     })
   }
 
-  // add new shipping service option
-  response.shipping_services.push({
-    label: appData.label || 'My shipping method',
-    carrier: 'My carrier',
-    shipping_line: {
-      from: appData.from,
-      to: params.to,
-      package: {
-        weight: {
-          value: totalWeight
+  const checkZipCode = rule => {
+    // validate rule zip range
+    if (cepDestino && rule.zip_range) {
+      const { min, max } = rule.zip_range
+      return Boolean((!min || cepOrigem >= min) && (!max || cepOrigem <= max))
+    }
+    return true
+  }
+
+  // search for configured free shipping rule
+  if (Array.isArray(appData.shipping_rules)) {
+    for (let i = 0; i < appData.shipping_rules.length; i++) {
+      const rule = appData.shipping_rules[i]
+      if (rule.free_shipping && checkZipCode(rule)) {
+        if (!rule.min_amount) {
+          response.free_shipping_from_value = 0
+          break
+        } else if (!(response.free_shipping_from_value <= rule.min_amount)) {
+          response.free_shipping_from_value = rule.min_amount
         }
+      }
+    }
+  }
+
+  // optinal predefined or configured service codes
+  let serviceCodes
+  if (params.service_code) {
+    serviceCodes = [params.service_code]
+  } else if (appData.services?.[0]?.service_code) {
+    serviceCodes = appData.services.map((service) => service.service_code)
+  }
+
+  // optional params to Correios services
+  let vlDeclarado = 0
+  const servicosAdicionais = []
+  if (params.subtotal && !appData.no_declare_value) {
+    vlDeclarado = params.subtotal
+  }
+  // https://api.correios.com.br/preco/v1/servicos-adicionais/03220
+  if (params.own_hand) {
+    servicosAdicionais.push('002')
+  }
+  if (params.receipt) {
+    servicosAdicionais.push('001')
+  }
+
+  // calculate weight and pkg value from items list
+  let nextDimensionToSum = 'length'
+  const pkg = {
+    dimensions: {
+      width: {
+        value: 0,
+        unit: 'cm'
       },
-      price: 10,
-      delivery_time: {
-        days: 3,
-        working_days: true
+      height: {
+        value: 0,
+        unit: 'cm'
+      },
+      length: {
+        value: 0,
+        unit: 'cm'
+      }
+    },
+    weight: {
+      value: 0,
+      unit: 'g'
+    }
+  }
+
+  params.items.forEach(({ price, quantity, dimensions, weight }) => {
+    if (!params.subtotal && !appData.no_declare_value) {
+      vlDeclarado += price * quantity
+    }
+    // sum physical weight
+    if (weight && weight.value) {
+      let weightValue
+      switch (weight.unit) {
+        case 'kg':
+          weightValue = weight.value * 1000
+          break
+        case 'g':
+          weightValue = weight.value
+          break
+        case 'mg':
+          weightValue = weight.value / 1000000
+      }
+      if (weightValue) {
+        pkg.weight.value += weightValue * quantity
+      }
+    }
+
+    // sum total items dimensions to calculate cubic weight
+    if (dimensions) {
+      for (const side in dimensions) {
+        const dimension = dimensions[side]
+        if (dimension && dimension.value) {
+          let dimensionValue
+          switch (dimension.unit) {
+            case 'cm':
+              dimensionValue = dimension.value
+              break
+            case 'm':
+              dimensionValue = dimension.value * 100
+              break
+            case 'mm':
+              dimensionValue = dimension.value / 10
+          }
+          // add/sum current side to final dimensions object
+          if (dimensionValue) {
+            const pkgDimension = pkg.dimensions[side]
+            for (let i = 0; i < quantity; i++) {
+              if (!pkgDimension.value) {
+                pkgDimension.value = dimensionValue
+              } else if (nextDimensionToSum === side) {
+                pkgDimension.value += dimensionValue
+                nextDimensionToSum = nextDimensionToSum === 'length'
+                  ? 'width'
+                  : nextDimensionToSum === 'width' ? 'height' : 'length'
+              } else if (pkgDimension.value < dimensionValue) {
+                pkgDimension.value = dimensionValue
+              }
+            }
+          }
+        }
       }
     }
   })
 
-  */
+  let correiosResult
+  try {
+    const { data } = await calculate({
+      correiosParams: {
+        cepOrigem,
+        cepDestino,
+        psObjeto: pkg.weight.value,
+        comprimento: pkg.dimensions.length.value,
+        altura: pkg.dimensions.height.value,
+        largura: pkg.dimensions.width.value,
+        vlDeclarado,
+        servicosAdicionais
+      },
+      serviceCodes,
+      storeId
+    })
+    correiosResult = data
+  } catch (err) {
+    const { response } = err
+    return res.status(409).send({
+      error: 'CALCULATE_FAILED',
+      message: response?.data?.[0]?.txErro || err.message
+    })
+  }
+
+  correiosResult.forEach(({
+    coProduto,
+    // psCobrado
+    // peAdValorem
+    pcProduto,
+    pcTotalServicosAdicionais,
+    pcFinal,
+    prazoEntrega,
+    entregaSabado
+  }) => {
+    // find respective configured service label
+    let serviceName
+    switch (coProduto) {
+      case '04014':
+      case '03220':
+        serviceName = 'SEDEX'
+        break
+      case '04510':
+      case '03298':
+        serviceName = 'PAC'
+    }
+    let label = serviceName || `Correios ${coProduto}`
+    if (Array.isArray(appData.services)) {
+      for (let i = 0; i < appData.services.length; i++) {
+        const service = appData.services[i]
+        if (service && service.service_code === coProduto && service.label) {
+          label = service.label
+        }
+      }
+    }
+
+    // parse to E-Com Plus shipping line object
+    const parseMoney = (str) => (Number(str.replace(',', '.') || 0))
+    const shippingLine = {
+      from: {
+        ...params.from,
+        zip: cepOrigem
+      },
+      to: params.to,
+      package: pkg,
+      price: parseMoney(pcProduto || pcFinal),
+      declared_value: vlDeclarado,
+      declared_value_price: parseMoney(pcTotalServicosAdicionais),
+      own_hand: Boolean(params.own_hand),
+      receipt: Boolean(params.receipt),
+      discount: 0,
+      total_price: parseMoney(pcFinal),
+      delivery_time: {
+        days: Number(prazoEntrega),
+        working_days: entregaSabado !== 'S'
+      },
+      posting_deadline: {
+        days: 3,
+        ...appData.posting_deadline
+      },
+      flags: ['correios-api']
+    }
+
+    // search for discount by shipping rule
+    if (Array.isArray(appData.shipping_rules)) {
+      for (let i = 0; i < appData.shipping_rules.length; i++) {
+        const rule = appData.shipping_rules[i]
+        if (
+          rule &&
+          (!rule.service_code || rule.service_code === coProduto) &&
+          checkZipCode(rule) &&
+          !(rule.min_amount > params.subtotal)
+        ) {
+          // valid shipping rule
+          if (rule.free_shipping) {
+            shippingLine.discount += shippingLine.total_price
+            shippingLine.total_price = 0
+            break
+          } else if (rule.discount) {
+            let discountValue = rule.discount.value
+            if (rule.discount.percentage) {
+              discountValue *= (shippingLine.total_price / 100)
+            }
+            if (discountValue) {
+              shippingLine.discount += discountValue
+              shippingLine.total_price -= discountValue
+              if (shippingLine.total_price < 0) {
+                shippingLine.total_price = 0
+              }
+            }
+            break
+          }
+        }
+      }
+    }
+
+    // push shipping service object to response
+    response.shipping_services.push({
+      label,
+      carrier: 'Correios',
+      // https://informederendimentos.com/consulta/cnpj-correios/
+      carrier_doc_number: '34028316000103',
+      service_code: coProduto,
+      service_name: serviceName || label,
+      shipping_line: shippingLine
+    })
+  })
 
   res.send(response)
 }

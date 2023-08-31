@@ -82,6 +82,7 @@ const newCorreios = async (storeId, { username, accessCode, postCardNumber } = {
   }
   const correios = axios.create({
     baseURL,
+    timeout: 20000,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
