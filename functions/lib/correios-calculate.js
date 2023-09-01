@@ -62,14 +62,21 @@ const calculate = async ({
   }
   const params = serviceCodes
     .filter((coProduto) => typeof coProduto === 'string' && coProduto)
-    .map((coProduto, nuRequisicao) => ({
-      ...correiosParams,
-      coProduto,
-      nuContrato,
-      nuDR,
-      nuRequisicao,
-      tpObjeto: '2'
-    }))
+    .map((coProduto, nuRequisicao) => {
+      const _params = {
+        ...correiosParams,
+        coProduto,
+        nuContrato,
+        nuDR,
+        nuRequisicao,
+        tpObjeto: '2'
+      }
+      if (coProduto === '03298' && _params.vlDeclarado) {
+        delete _params.vlDeclarado
+        _params.servicosAdicionais = _params.servicosAdicionais.filter((s) => s !== '019')
+      }
+      return _params
+    })
   return Promise.all([
     correios.post('/preco/v1/nacional', {
       idLote: '1',

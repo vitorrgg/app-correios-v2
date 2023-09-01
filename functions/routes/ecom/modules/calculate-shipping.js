@@ -192,9 +192,6 @@ exports.post = async ({ appSdk }, req, res) => {
     })
   }
 
-  logger.debug('[calculate] result', {
-    correiosResult
-  })
   correiosResult.forEach(({
     coProduto,
     // psCobrado
@@ -203,8 +200,19 @@ exports.post = async ({ appSdk }, req, res) => {
     pcTotalServicosAdicionais,
     pcFinal,
     prazoEntrega,
-    entregaSabado
+    entregaSabado,
+    txErro
   }) => {
+    if (txErro) {
+      logger.warn(`[calculate] alert/error with #${storeId} ${coProduto}`, {
+        pcFinal,
+        prazoEntrega,
+        txErro
+      })
+    }
+    if (!pcFinal || !prazoEntrega) {
+      return
+    }
     // find respective configured service label
     let serviceName
     switch (coProduto) {
