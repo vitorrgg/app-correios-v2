@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/ecomplus/application-starter/compare/v1.0.0...v1.0.1) (2023-09-01)
+
+
+### Bug Fixes
+
+* prevent calculate parse error with undefined `pcTotalServicosAdicionais` ([7d48549](https://github.com/ecomplus/application-starter/commit/7d4854937d2b929a4bdc0d185266fe8d89275c27))
+* prevent sending declared value to PAC service ([2327834](https://github.com/ecomplus/application-starter/commit/23278344d4c15cae5404c681555c12b8aa9650f0))
+* properly getting correios credentials from app data ([c76aff0](https://github.com/ecomplus/application-starter/commit/c76aff0977429f93e9d24bbd1db933ba9e49318e))
+* properly getting correios result from `calculate` function ([ee53806](https://github.com/ecomplus/application-starter/commit/ee53806084787efc78f5bdc4e8f7879416997577))
+* properly getting correios result from `calculate` function (debug) ([e580fb2](https://github.com/ecomplus/application-starter/commit/e580fb276d81a6ce8c0d3e1765e9fbfb645ef9e0))
+
 ## 1.0.0 (2023-08-31)
 
 
