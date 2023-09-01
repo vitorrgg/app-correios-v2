@@ -218,6 +218,7 @@ exports.post = async ({ appSdk }, req, res) => {
     switch (coProduto) {
       case '04014':
       case '03220':
+      case '03204':
         serviceName = 'SEDEX'
         break
       case '04510':
