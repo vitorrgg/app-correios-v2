@@ -145,6 +145,8 @@ exports.post = async ({ appSdk }, req, res) => {
               break
             case 'mm':
               dimensionValue = dimension.value / 10
+            default:
+              dimensionValue = dimension.value
           }
           // add/sum current side to final dimensions object
           if (dimensionValue) {
