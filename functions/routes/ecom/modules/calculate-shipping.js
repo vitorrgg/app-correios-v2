@@ -43,7 +43,7 @@ exports.post = async ({ appSdk }, req, res) => {
     // validate rule zip range
     if (cepDestino && rule.zip_range) {
       const { min, max } = rule.zip_range
-      return Boolean((!min || cepOrigem >= min) && (!max || cepOrigem <= max))
+      return Boolean((!min || cepDestino >= min) && (!max || cepDestino <= max))
     }
     return true
   }
@@ -124,6 +124,8 @@ exports.post = async ({ appSdk }, req, res) => {
           break
         case 'mg':
           weightValue = weight.value / 1000000
+        default:
+          weightValue = weight.value
       }
       if (weightValue) {
         pkg.weight.value += weightValue * quantity
