@@ -71,7 +71,7 @@ const calculate = async ({
         nuRequisicao,
         tpObjeto: '2'
       }
-      if (coProduto === '03298' && _params.vlDeclarado) {
+      if ((coProduto === '03298' || coProduto === '04227') && _params.vlDeclarado) {
         delete _params.vlDeclarado
         _params.servicosAdicionais = _params.servicosAdicionais.filter((s) => s !== '019')
       }
