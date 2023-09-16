@@ -71,7 +71,8 @@ const calculate = async ({
         nuRequisicao,
         tpObjeto: '2'
       }
-      if ((coProduto === '03298' || coProduto === '04227') && _params.vlDeclarado) {
+      const listWithoutAddService = ['03298', '04227', '80659']
+      if (listWithoutAddService.includes(coProduto) && _params.vlDeclarado) {
         delete _params.vlDeclarado
         _params.servicosAdicionais = _params.servicosAdicionais.filter((s) => s !== '019')
       }
