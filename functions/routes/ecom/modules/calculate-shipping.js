@@ -270,10 +270,18 @@ exports.post = async ({ appSdk }, req, res) => {
     if (Array.isArray(appData.shipping_rules)) {
       for (let i = 0; i < appData.shipping_rules.length; i++) {
         const rule = appData.shipping_rules[i]
+        let hasProduct
+        if (Array.isArray(rule.product_ids) && rule.product_ids.length) {
+          const isAllProducts = rule.all_product_ids
+          hasProduct = isAllProducts
+            ? params.items.every(item => rule.product_ids.indexOf(item.product_id) > -1)
+            : params.items.some(item => rule.product_ids.indexOf(item.product_id) > -1)
+        }
         if (
           rule &&
           (!rule.service_code || rule.service_code === coProduto) &&
           checkZipCode(rule) &&
+          (!rule.product_ids || hasProduct) &&
           !(rule.min_amount > params.subtotal)
         ) {
           // valid shipping rule

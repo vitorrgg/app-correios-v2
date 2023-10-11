@@ -319,6 +319,22 @@ const app = {
               "default": false,
               "title": "Frete grátis"
             },
+            "product_ids": {
+              "title": "Lista de produtos selecionados",
+              "description": "Se preenchido, a regra de envio estará disponível apenas se pelo menos um destes produtos estiver no carrinho",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{24}$",
+                "title": "ID do produto"
+              }
+            },
+            "all_product_ids": {
+              "type": "boolean",
+              "title": "Checar todos os produtos",
+              "description": "Se ativo, a regra será disponibilizada apenas se todos os itens do carrinho estiverem na lista de produtos selecionados",
+              "default": false
+            },
             "discount": {
               "title": "Desconto",
               "type": "object",
