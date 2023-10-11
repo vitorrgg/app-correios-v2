@@ -78,9 +78,6 @@ const calculate = async ({
       }
       return _params
     })
-    if (storeId == 51260) {
-      console.log('Calc quote', JSON.stringify(params))
-    }
   return Promise.all([
     correios.post('/preco/v1/nacional', {
       idLote: '1',
@@ -94,7 +91,7 @@ const calculate = async ({
       .catch(debugError)
   ]).then((responses) => {
     if (storeId == 51260) {
-      console.log('Calc result', responses)
+      console.log('Calc result', JSON.stringify(responses[0].data), JSON.stringify(responses[1].data))
     }
     responses[1].data.forEach(({ coProduto, ...value }) => {
       const result = responses[0].data.find((result) => result.coProduto === coProduto)
