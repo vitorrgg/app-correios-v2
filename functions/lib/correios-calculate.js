@@ -79,7 +79,7 @@ const calculate = async ({
       return _params
     })
     if (storeId == 51260) {
-      console.log('Calc quote', JSON.stringify(_params))
+      console.log('Calc quote', JSON.stringify(params))
     }
   return Promise.all([
     correios.post('/preco/v1/nacional', {
