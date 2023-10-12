@@ -90,9 +90,6 @@ const calculate = async ({
     }, { timeout })
       .catch(debugError)
   ]).then((responses) => {
-    if (storeId == 51260) {
-      console.log('Calc result', JSON.stringify(responses[0].data), JSON.stringify(responses[1].data))
-    }
     responses[1].data.forEach(({ coProduto, ...value }) => {
       const result = responses[0].data.find((result) => result.coProduto === coProduto)
       if (result) {
