@@ -217,7 +217,7 @@ exports.post = async ({ appSdk }, req, res) => {
         txErro
       })
     }
-    if (!pcFinal || !prazoEntrega) {
+    if (!pcFinal || !(prazoEntrega >= 0)) {
       return
     }
     // find respective configured service label

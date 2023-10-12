@@ -95,9 +95,6 @@ const calculate = async ({
       if (result) {
         Object.assign(result, value)
       }
-      if (storeId == 51260) {
-        console.log('Calculation result', JSON.stringify(result))
-      }
     })
     return responses[0]
   })
