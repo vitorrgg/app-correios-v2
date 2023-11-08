@@ -188,8 +188,21 @@ exports.post = async ({ appSdk }, req, res) => {
       storeId
     })
     correiosResult = data
-    if (storeId == 51260) {
-      console.log('Calc result', JSON.stringify(correiosResult))
+    if (storeId == 51466) {
+      console.log('Calc result', JSON.stringify(correiosResult), 'send item', JSON.stringify({
+        correiosParams: {
+          cepOrigem,
+          cepDestino,
+          psObjeto: pkg.weight.value,
+          comprimento: pkg.dimensions.length.value,
+          altura: pkg.dimensions.height.value,
+          largura: pkg.dimensions.width.value,
+          vlDeclarado,
+          servicosAdicionais
+        },
+        serviceCodes,
+        storeId
+      }))
     }
   } catch (err) {
     const { response } = err
