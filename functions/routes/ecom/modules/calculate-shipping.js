@@ -153,17 +153,38 @@ exports.post = async ({ appSdk }, req, res) => {
           // add/sum current side to final dimensions object
           if (dimensionValue) {
             const pkgDimension = pkg.dimensions[side]
-            for (let i = 0; i < quantity; i++) {
+            if (!appData.use_bigger_box) {
+              for (let i = 0; i < quantity; i++) {
+                if (!pkgDimension.value) {
+                  pkgDimension.value = dimensionValue
+                } else if (nextDimensionToSum === side) {
+                  pkgDimension.value += dimensionValue
+                  nextDimensionToSum = nextDimensionToSum === 'length'
+                    ? 'width'
+                    : nextDimensionToSum === 'width' ? 'height' : 'length'
+                } else if (pkgDimension.value < dimensionValue) {
+                  pkgDimension.value = dimensionValue
+                }
+              }
+            } else {
               if (!pkgDimension.value) {
                 pkgDimension.value = dimensionValue
-              } else if (nextDimensionToSum === side && !appData.greater_box) {
-                pkgDimension.value += dimensionValue
-                nextDimensionToSum = nextDimensionToSum === 'length'
-                  ? 'width'
-                  : nextDimensionToSum === 'width' ? 'height' : 'length'
               } else if (pkgDimension.value < dimensionValue) {
                 pkgDimension.value = dimensionValue
               }
+            }
+            let sumDimensions = 0
+            ['height', 'width', 'length'].forEach(dimension => {
+              if (pkg.dimensions[dimension] >= 0) {
+                sumDimensions += pkg.dimensions[dimension]
+              }
+            })
+            if ((sumDimensions > 200 || pkgDimension.value > 100) && side === 'length') {
+              pkgDimension.value = 15
+            } else if ((sumDimensions > 200 || pkgDimension.value > 100) && side === 'width') {
+              pkgDimension.value = 10
+            } else if ((sumDimensions > 200 || pkgDimension.value > 100) && side === 'height') {
+              pkgDimension.value = 5
             }
           }
         }
