@@ -268,12 +268,12 @@ const app = {
       },
       "hide": false
     },
-    "greater_box": {
+    "use_bigger_box": {
       "schema": {
         "type": "boolean",
         "default": false,
-        "title": "Habilitar cálculo considerando maior caixa",
-        "description": "Ao selecionado, será considerado a maior dimensão e somado os pesos"
+        "title": "Calcular considerando apenas uma caixa",
+        "description": "Se selecionado as dimensões não serão somadas, considerando o maior valor de cada dimensão entre os itens"
       },
       "hide": false
     },
