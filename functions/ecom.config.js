@@ -268,6 +268,15 @@ const app = {
       },
       "hide": false
     },
+    "greater_box": {
+      "schema": {
+        "type": "boolean",
+        "default": false,
+        "title": "Habilitar cálculo considerando maior caixa",
+        "description": "Ao selecionado, será considerado a maior dimensão e somado os pesos"
+      },
+      "hide": false
+    },
     "shipping_rules": {
       "schema": {
         "title": "Regras de envio",

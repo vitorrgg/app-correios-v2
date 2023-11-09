@@ -156,7 +156,7 @@ exports.post = async ({ appSdk }, req, res) => {
             for (let i = 0; i < quantity; i++) {
               if (!pkgDimension.value) {
                 pkgDimension.value = dimensionValue
-              } else if (nextDimensionToSum === side) {
+              } else if (nextDimensionToSum === side && !appData.greater_box) {
                 pkgDimension.value += dimensionValue
                 nextDimensionToSum = nextDimensionToSum === 'length'
                   ? 'width'
