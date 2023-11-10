@@ -17,12 +17,24 @@ const calculate = async ({
   }
   if (!(Number(correiosParams.comprimento) >= 15)) {
     correiosParams.comprimento = '15'
+  } else if (Number(correiosParams.comprimento) > 100) {
+    correiosParams.comprimento = '100'
   }
   if (!(Number(correiosParams.altura) >= 2)) {
     correiosParams.altura = '2'
+  } else if (Number(correiosParams.altura) > 100) {
+    correiosParams.altura = '100'
   }
   if (!(Number(correiosParams.largura) >= 11)) {
     correiosParams.largura = '11'
+  } else if (Number(correiosParams.largura) > 100) {
+    correiosParams.largura = '100'
+  }
+  const { largura, altura, comprimento } = correiosParams
+  if (Number(largura) + Number(altura) + Number(comprimento) > 200) {
+    correiosParams.comprimento = '100'
+    correiosParams.largura = '84'
+    correiosParams.altura = '16'
   }
   if (correiosParams.vlDeclarado) {
     const value = Number(correiosParams.vlDeclarado)
