@@ -15,15 +15,33 @@ const calculate = async ({
   if (!(Number(correiosParams.psObjeto) >= 200)) {
     correiosParams.psObjeto = '200'
   }
-  if (!(Number(correiosParams.comprimento) >= 15)) {
-    correiosParams.comprimento = '15'
+  let sumSides = 0
+  ['comprimento', 'largura', 'altura'].forEach(side => {
+    let dimension = Number(correiosParams[side])
+    if (dimension >= 0) {
+      if (dimension > 100) {
+        dimension = 100
+      }
+      sumSides += dimension
+    }
+  })
+  if (sumSides > 200) {
+    // cubic weight must be 30kg maximum
+    correiosParams.largura = '50'
+    correiosParams.comprimento = '50'
+    correiosParams.altura = '43'
+  } else {
+    if (!(Number(correiosParams.comprimento) >= 15)) {
+      correiosParams.comprimento = '15'
+    }
+    if (!(Number(correiosParams.altura) >= 2)) {
+      correiosParams.altura = '2'
+    }
+    if (!(Number(correiosParams.largura) >= 11)) {
+      correiosParams.largura = '11'
+    }
   }
-  if (!(Number(correiosParams.altura) >= 2)) {
-    correiosParams.altura = '2'
-  }
-  if (!(Number(correiosParams.largura) >= 11)) {
-    correiosParams.largura = '11'
-  }
+
   if (correiosParams.vlDeclarado) {
     const value = Number(correiosParams.vlDeclarado)
     if (value < 25) {

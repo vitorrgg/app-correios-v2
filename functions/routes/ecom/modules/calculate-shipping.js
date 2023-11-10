@@ -173,19 +173,6 @@ exports.post = async ({ appSdk }, req, res) => {
                 pkgDimension.value = dimensionValue
               }
             }
-            let sumDimensions = 0
-            ['height', 'width', 'length'].forEach(dimension => {
-              if (pkg.dimensions[dimension] >= 0) {
-                sumDimensions += pkg.dimensions[dimension]
-              }
-            })
-            if ((sumDimensions > 200 || pkgDimension.value > 100) && side === 'length') {
-              pkgDimension.value = 15
-            } else if ((sumDimensions > 200 || pkgDimension.value > 100) && side === 'width') {
-              pkgDimension.value = 10
-            } else if ((sumDimensions > 200 || pkgDimension.value > 100) && side === 'height') {
-              pkgDimension.value = 5
-            }
           }
         }
       }
