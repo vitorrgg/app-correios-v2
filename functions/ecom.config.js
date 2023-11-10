@@ -268,6 +268,15 @@ const app = {
       },
       "hide": false
     },
+    "use_bigger_box": {
+      "schema": {
+        "type": "boolean",
+        "default": false,
+        "title": "Calcular considerando apenas uma caixa",
+        "description": "Se selecionado as dimensões não serão somadas, considerando o maior valor de cada dimensão entre os itens"
+      },
+      "hide": false
+    },
     "shipping_rules": {
       "schema": {
         "title": "Regras de envio",

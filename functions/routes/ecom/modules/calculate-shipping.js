@@ -153,16 +153,22 @@ exports.post = async ({ appSdk }, req, res) => {
           // add/sum current side to final dimensions object
           if (dimensionValue) {
             const pkgDimension = pkg.dimensions[side]
-            for (let i = 0; i < quantity; i++) {
-              if (!pkgDimension.value) {
+            if (appData.use_bigger_box === true) {
+              if (!pkgDimension.value || pkgDimension.value < dimensionValue) {
                 pkgDimension.value = dimensionValue
-              } else if (nextDimensionToSum === side) {
-                pkgDimension.value += dimensionValue
-                nextDimensionToSum = nextDimensionToSum === 'length'
-                  ? 'width'
-                  : nextDimensionToSum === 'width' ? 'height' : 'length'
-              } else if (pkgDimension.value < dimensionValue) {
-                pkgDimension.value = dimensionValue
+              }
+            } else {
+              for (let i = 0; i < quantity; i++) {
+                if (!pkgDimension.value) {
+                  pkgDimension.value = dimensionValue
+                } else if (nextDimensionToSum === side) {
+                  pkgDimension.value += dimensionValue
+                  nextDimensionToSum = nextDimensionToSum === 'length'
+                    ? 'width'
+                    : nextDimensionToSum === 'width' ? 'height' : 'length'
+                } else if (pkgDimension.value < dimensionValue) {
+                  pkgDimension.value = dimensionValue
+                }
               }
             }
           }
