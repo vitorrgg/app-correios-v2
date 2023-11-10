@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/ecomplus/application-starter/compare/v1.0.1...v1.1.0) (2023-11-10)
+
+
+### Features
+
+* additional config option to "use bigger box" and skip summing items dimensions ([e471637](https://github.com/ecomplus/application-starter/commit/e471637709ecf18b07af825d743dea3af19c9b02))
+
+
+### Bug Fixes
+
+* **calculate-shipping:** not remove shipping method if time is zero ([2175e25](https://github.com/ecomplus/application-starter/commit/2175e2517cf38babc94c55f7985561702b26f3f2))
+* **calculate-shipping:** set default in switch without unit and checkzip code check destination zip ([e094609](https://github.com/ecomplus/application-starter/commit/e0946094fcf872841ce7597411ae053c594b329f))
+* hard reset pkg dimensions on calculate to fix maximum values ([c329f2c](https://github.com/ecomplus/application-starter/commit/c329f2c958d7dee0e50289db4b7fcdb3bbc6272a))
+
 ### [1.0.1](https://github.com/ecomplus/application-starter/compare/v1.0.0...v1.0.1) (2023-09-01)
 
 
