@@ -206,7 +206,6 @@ exports.post = async ({ appSdk }, req, res) => {
     correiosResult = data
   } catch (err) {
     const { response } = err
-    console.log('erro de calculo', err)
     return res.status(409).send({
       error: 'CALCULATE_FAILED',
       message: response?.data?.[0]?.txErro || err.message
