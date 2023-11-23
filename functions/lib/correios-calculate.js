@@ -61,6 +61,7 @@ const calculate = async ({
     }
   })
   const debugError = (err) => {
+    console.log('teve erro', err)
     if (err.response) {
       logger.warn(`[calculate] failed for #${storeId}`, {
         body: err.config.data,
@@ -102,6 +103,9 @@ const calculate = async ({
     }, { timeout })
       .catch(debugError)
   ]).then((responses) => {
+    if (storeId == 4566) {
+      console.log('retorno calculo', responses)
+    }
     responses[1].data.forEach(({ coProduto, ...value }) => {
       const result = responses[0].data.find((result) => result.coProduto === coProduto)
       if (result) {
