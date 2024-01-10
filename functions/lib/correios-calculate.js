@@ -90,6 +90,9 @@ const calculate = async ({
       }
       return _params
     })
+    if (storeId == 4566) {
+      console.log('Calc body', JSON.stringify(params))
+    }
   return Promise.all([
     correios.post('/preco/v1/nacional', {
       idLote: '1',
