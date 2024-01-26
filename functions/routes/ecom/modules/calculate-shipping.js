@@ -283,19 +283,19 @@ exports.post = async ({ appSdk }, req, res) => {
     }
 
     // check for default configured additional/discount price
-    if (typeof config.additional_price === 'number' && config.additional_price) {
-      if (config.additional_price > 0) {
+    if (typeof appData.additional_price === 'number' && appData.additional_price) {
+      if (appData.additional_price > 0) {
         shippingLine.other_additionals = [{
           tag: 'additional_price',
           label: 'Adicional padrão',
-          price: config.additional_price
+          price: appData.additional_price
         }]
       } else {
         // negative additional price to apply discount
-        shippingLine.discount -= config.additional_price
+        shippingLine.discount -= appData.additional_price
       }
       // update total price
-      shippingLine.total_price += config.additional_price
+      shippingLine.total_price += appData.additional_price
     }
 
     // search for discount by shipping rule
